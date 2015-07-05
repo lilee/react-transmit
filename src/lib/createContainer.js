@@ -7,6 +7,20 @@ var promiseProxy = require("./promiseProxy");
 var React        = require("./react");
 var assign       = React.__spread;
 
+function shallowEqual(a, b) {
+	var ka = 0;
+	var kb = 0;
+	for (let key in a) {
+		if (a.hasOwnProperty(key) && a[key] !== b[key])
+			return false;
+    		ka++;
+  	}
+  	for (let key in b)
+  		if (b.hasOwnProperty(key))
+      			kb++;
+  	return ka === kb;
+}
+
 /**
  * @function createContainer
  */
@@ -79,6 +93,15 @@ module.exports = function (Component, options) {
 					return queryResults;
 				});
 			}
+		},
+		componentWillReceiveProps: function(nextProps) {
+      			var needToLoad = !shallowEqual(
+        			nextProps.queryParams,
+        			this.props.queryParams
+      			);
+    			if (needToLoad) {
+        			this.setQueryParams(nextProps.queryParams);
+    			}
 		},
 		componentWillMount: function () {
 			var externalQueryParams = this.props && this.props.queryParams || {};
